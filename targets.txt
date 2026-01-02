@@ -1,0 +1,5 @@
+/etc/hosts
+/etc/passwd
+/etc/group
+/etc/ssh/sshd_config
+/home/simranjitkaur/File-Integrity-Checker/test_file.txt

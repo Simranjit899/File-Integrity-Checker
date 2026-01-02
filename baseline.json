@@ -1,0 +1,13 @@
+{
+  "created_utc": "2026-01-02T22:01:09.048279Z",
+  "algorithm": "sha256",
+  "files": {
+    "/etc/hosts": "8621e6950b03d53608d7e25350346b33764bdd62a7f19b0f7d53f7b07abfad39",
+    "/etc/passwd": "2ee4da1cdeb6b0749e6e7919bba8e9e7da8315922884450711b26c80d0fb15a3",
+    "/etc/group": "bb776e0ea6cc0e1b4c66ad550915d092aee87cf43f5391518626f4088fb78008",
+    "/home/simranjitkaur/File-Integrity-Checker/test_file.txt": "433aaae2ef845dc21585db933bdb3bf048b05699b3dc4afffedc599bc06f7db8"
+  },
+  "missing": [
+    "/etc/ssh/sshd_config"
+  ]
+}

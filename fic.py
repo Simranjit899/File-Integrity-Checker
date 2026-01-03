@@ -61,6 +61,13 @@ def create_baseline() -> None:
         for p in baseline["missing"]:
             print(f"  - {p}")
 
+def file_meta(path: str) -> dict:
+    st = os.stat(path)
+    return {
+        "size_bytes": st.st_size,
+        "mtime_utc": datetime.utcfromtimestamp(st.st_mtime).isoformat() + "Z",
+        "mode_octal": oct(st.st_mode & 0o777),
+    }
 
 def check_integrity() -> int:
     if not os.path.exists(BASELINE_FILE):
@@ -75,31 +82,56 @@ def check_integrity() -> int:
     missing = []
     unchanged = 0
 
+    report = {
+        "checked_utc": datetime.utcnow().isoformat() + "Z",
+        "algorithm": baseline.get("algorithm", "sha256"),
+        "summary": {"unchanged": 0, "modified": 0, "missing": 0},
+        "findings": {"modified": [], "missing": []},
+    }
+
     for path, old_hash in baseline_files.items():
         try:
             new_hash = sha256_file(path)
             if new_hash != old_hash:
+                meta = file_meta(path)
                 modified.append(path)
+                report["findings"]["modified"].append({
+                    "path": path,
+                    "old_hash": old_hash,
+                    "new_hash": new_hash,
+                    "meta": meta
+                })
             else:
                 unchanged += 1
         except (FileNotFoundError, PermissionError):
             missing.append(path)
+            report["findings"]["missing"].append({"path": path})
 
-    timestamp = datetime.utcnow().isoformat() + "Z"
+    report["summary"]["unchanged"] = unchanged
+    report["summary"]["modified"] = len(modified)
+    report["summary"]["missing"] = len(missing)
+
+    os.makedirs("reports", exist_ok=True)
+    report_path = "reports/last_check_report.json"
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    timestamp = report["checked_utc"]
 
     print(f"=== File Integrity Check ({timestamp}) ===")
     print(f"Unchanged: {unchanged}")
     print(f"Modified:  {len(modified)}")
     print(f"Missing:   {len(missing)}")
+    print(f"[OK] Report saved: {report_path}")
 
     # Log alerts (only modified/missing)
-    for p in modified:
-        line = f"{timestamp} [ALERT] MODIFIED: {p}"
+    for item in report["findings"]["modified"]:
+        line = f"{timestamp} [ALERT] MODIFIED: {item['path']} (size={item['meta']['size_bytes']}, mtime={item['meta']['mtime_utc']})"
         write_log(line)
         print(line)
 
-    for p in missing:
-        line = f"{timestamp} [ALERT] MISSING:  {p}"
+    for item in report["findings"]["missing"]:
+        line = f"{timestamp} [ALERT] MISSING:  {item['path']}"
         write_log(line)
         print(line)
 
@@ -108,7 +140,6 @@ def check_integrity() -> int:
         write_log(ok_line)
         print(ok_line)
 
-    # exit code: 0=clean, 1=violations
     return 1 if (modified or missing) else 0
 
 

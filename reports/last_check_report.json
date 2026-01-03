@@ -1,0 +1,24 @@
+{
+  "checked_utc": "2026-01-03T01:17:09.469538Z",
+  "algorithm": "sha256",
+  "summary": {
+    "unchanged": 3,
+    "modified": 1,
+    "missing": 0
+  },
+  "findings": {
+    "modified": [
+      {
+        "path": "/home/simranjitkaur/File-Integrity-Checker/test_file.txt",
+        "old_hash": "433aaae2ef845dc21585db933bdb3bf048b05699b3dc4afffedc599bc06f7db8",
+        "new_hash": "e09c24ce8a9836a9b50f7c27cb48228d60c68049e2574a0eb510b18b048dac79",
+        "meta": {
+          "size_bytes": 140,
+          "mtime_utc": "2026-01-03T00:54:38.407089Z",
+          "mode_octal": "0o664"
+        }
+      }
+    ],
+    "missing": []
+  }
+}
